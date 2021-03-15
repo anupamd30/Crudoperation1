@@ -1,0 +1,298 @@
+﻿
+@{
+    var p = ViewBag.List;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/CSS/bootstrap.min.css" rel="stylesheet" />
+    <title>Index</title>
+</head>
+<body>
+    <div class="container">
+        <div class="form-group">
+            <button type="button" id="Btninsert" class="btn btn-primary">Add New</button>
+        </div>
+    </div>
+    <div class="container" id="d3">
+        <input type="hidden" id="Txtide" />
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="Txtname" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>City</label>
+            <select id="ddlcity" class="form-control">
+                <option value="-1">Select City</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Mumbai">Mumbai</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Gender</label>
+            <input type="radio" name="Gender" value="M" />M
+            <input type="radio" name="Gender" value="F" />F
+        </div>
+        <div class="form-group">
+            <label>Pin</label>
+            <input type="text" id="Txtpin1" class="form-control" />
+        </div>
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="customFile">
+            <label class="custom-file-label" for="customFile">Choose file</label>
+
+           /// @*<img src="~/Pic/"+filename />*@
+        </div>
+        <div class="form-group">
+            <button type="submit" id="Btnsub" class="btn btn-success">Submit</button>
+        </div>
+        
+    </div>
+
+    <div class="container" id="d1">
+        @if (p != null)
+        {
+            <table class="table table-striped">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Gender</th>
+                    <th>Pin</th>
+                    <th>File</th>
+                    <th>Action</th>
+                    <th>Action</th>
+                </tr>
+                @foreach (var str in p)
+                {
+                    <tr>
+                        <td>@str.Id</td>
+                        <td>@str.Name</td>
+                        <td>@str.City</td>
+                        <td>@str.Gender</td>
+                        <td>@str.Pin</td>
+                        <td>@str.File</td>
+                        <td><button type="button" id="btnedit" class="btn btn-primary" data="@str.Id">Edit</button> </td>
+                        @*<td> <a href="#" onclick="deleteuser(@str.Id)" class="btn btn-danger" > Delete</a></td>*@
+                        <td><button type="button"  class="btn btn-danger" onclick="deleteuser(@str.Id)" data="@str.Id">Delete</button></td>
+                    </tr>
+
+                }
+
+
+            </table>
+        }
+    </div>
+    <div class="container" id="d2">
+        <input type="hidden" id="Txtid" />
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" id="Txtnm" />
+        </div>
+        <div class="form-group">
+            <label>City</label>
+            <input type="text" class="form-control" id="Txtct" />
+        </div>
+        <div class="form-group">
+            <label>Gender</label>
+            <input type="text" class="form-control" id="Txtgen" />
+        </div>
+        <div class="form-group">
+            <label>Pin</label>
+            <input type="text" class="form-control" id="Txtpin" />
+        </div>
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="customFile12">
+            <label class="custom-file-label" for="customFile">Choose file</label>
+            <input type="hidden" id="sdnfileupload" />
+            <img id="idFile" class="img-fluid" alt="Updated File">
+            <a href="#link" id="btndwnld" src="/Content/Image/" role="button"> Download Link </a>
+            @*<img src="@Url.Content(File.)" />*@
+        </div>
+
+        <div class="form-group">
+            <button type="button" class="btn btn-success" id="btnupdate">Update</button>
+        </div>
+    </div>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $("#d2").hide();
+        });
+
+
+        $(document).on('click', '#btnedit', function () {
+
+
+            var _id = $(this).attr("data");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetUserDetails", "Officeinfo")',
+                data: { "Empid": _id },
+                dataType: "json",
+
+                success: function (data) {
+
+                    if (data != null) {
+                        $("#d2").show();
+                        $("#Txtid").val(data.Id);
+                        $("#Txtnm").val(data.Name);
+                        $("#Txtct").val(data.City);
+                        $("#Txtgen").val(data.Gender);
+                        $("#Txtpin").val(data.Pin);
+                        $("#idFile").attr("src","/Content/Image/"+ data.File);
+
+                        $("#sdnfileupload").val(data.File);
+                    }
+
+                },
+                error: function () {
+                    alert("Error");
+                }
+            });
+        });
+        $(document).on('click', '#btnupdate', function () {
+            //debugger;
+         var _ide = $("#Txtid").val();
+            var _nm = $("#Txtnm").val();
+            var _city = $("#Txtct").val();
+            var _gen = $("#Txtgen").val();
+        var _pin = $("#Txtpin").val();
+        var _file12 = $("#sdnfileupload").val();
+        // var model = { File: File1 };
+        var model = { "Id": _ide, "Name": _nm, "City": _city, "Gender": _gen, "Pin": _pin, "File": _file12 };
+        var jsonData = JSON.stringify(model);
+        //var data = new Fromdata();
+            function Download(url) {
+                document.getElementById('btndwnld').src = url;
+            };
+        
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateDetails", "Officeinfo")',
+               // data: { "id": _ide, "nm": _nm, "city": _city, "gen": _gen, "pin": _pin, "file12": _file12 },
+                dataType: "json",
+                data: function () {
+                    var data = new FormData();
+
+                     data.append("modelParameter", jsonData);
+                    // data.append("data")
+                    data.append("ProfileImage", $("#customFile12").get(0).files[0]);
+                //    data.append("file12": _file12);
+                    return data;
+                 
+                
+                  // JsonConvert.DeserializeObject<GrowerModel>(modelParameter);
+                }(),
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    alert("succes");
+                },
+                error: function () {
+                    alert("Error");
+                }
+           });
+    });
+        function deleteuser(id)
+        {
+            var _ide1 = id;
+            alert(id);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DelDetails", "Officeinfo")',
+                data: { "id1": _ide1 },
+                dataType: "json",
+                success: function (data) {
+                    if (data == "success") {
+
+                        alert("Delete Successfull");
+                    }
+                },
+                error: function () {
+                    alert("Error");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#d3").hide();
+        });
+    $(document).on('click', '#Btninsert', function () {
+        $("#d3").show();
+        @*$.ajax({
+            type: "POST",
+            url: '@Url.Action("Submituser", "Officeinfo")',
+            data: { "Empide2": ide2 },
+            dataType: "json",
+            success: function (data) {
+                if (data != null) {
+                    $("#d3").show();
+                    $("#Txtide").val();
+                    $("#Txtname").val();
+                    $("#ddlcity option: Select").val();
+                    $("input[type='radio'][name='Gender']:checked").val();
+                    $("#Txtpin1").val();
+
+                }
+            },
+            error: function () {
+                alert("Error");
+            }
+        });*@
+    });
+
+        $(document).on('click', '#Btnsub', function () {
+           // var _ide5 = $("#Txtide").val();
+            var _nm5 = $("#Txtname").val();
+            var _city5 = $("#ddlcity option:selected").val();
+            var _gen5 = $("input[type='radio'][name='Gender']:checked").val();
+            var _pin5 = $("#Txtpin1").val();
+            var _file5 = $("#customFile").val();
+            var model1 = { "Name": _nm5, "City": _city5, "Gender": _gen5, "Pin": _pin5, "File": _file5 };
+            var jsonData = JSON.stringify(model1);
+
+          
+    
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("InsertValue", "Officeinfo")',
+
+               // data: { "nm5": _nm5, "city5": _city5, "gen5": _gen5, "pin5": _pin5, "file": _file5 },
+                dataType: "json",
+                dataType: "json",
+                data: function () {
+                    var data = new FormData();
+
+                    data.append("modelParameter1", jsonData);
+
+                    data.append("ProfileImage1", $("#customFile").get(0).files[0]);
+                   
+                    return data;
+
+
+                    // JsonConvert.DeserializeObject< GrowerModel >(modelParameter1);
+                }(),
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    alert("succes");
+                },
+                error: function () {
+                    alert("Error");
+                }
+                
+            });
+        });
+
+    </script>
+
+
+</body>
+
+</html>
